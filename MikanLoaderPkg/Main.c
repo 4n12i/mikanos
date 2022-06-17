@@ -63,7 +63,7 @@ EFI_STATUS SaveMemoryMap(struct MemoryMap* map, EFI_FILE_PROTOCOL* file) {
     len = AsciiStrLen(header);
     file->Write(file, &len, header);
 
-    Print(L"map->buffer = %081x, map->map_size = %081x\n", 
+    Print(L"map->buffer = %08lx, map->map_size = %08lx\n", 
         map->buffer, map->map_size);
 
     EFI_PHYSICAL_ADDRESS iter;
@@ -74,7 +74,7 @@ EFI_STATUS SaveMemoryMap(struct MemoryMap* map, EFI_FILE_PROTOCOL* file) {
         EFI_MEMORY_DESCRIPTOR* desc = (EFI_MEMORY_DESCRIPTOR*)iter;
         len = AsciiSPrint(
             buf, sizeof(buf), 
-            "%u, %x, %-ls, %081x, %1x, %1x\n", 
+            "%u, %x, %-ls, %08lx, %lx, %lx\n", 
             i, desc->Type, GetMemoryTypeUnicode(desc->Type), 
             desc->PhysicalStart, desc->NumberOfPages, 
             desc->Attribute & 0xffffflu);
@@ -171,7 +171,6 @@ EFI_STATUS EFIAPI UefiMain (
     SaveMemoryMap(&memmap, memmap_file);
     memmap_file->Close(memmap_file);
 
-    // #@@range_begin(gop)
     EFI_GRAPHICS_OUTPUT_PROTOCOL* gop;
     OpenGOP(image_handle, &gop);
     Print(L"Resolution: %ux%u, Pixel Format: %s, %u pixels/line\n", 
@@ -179,16 +178,15 @@ EFI_STATUS EFIAPI UefiMain (
         gop->Mode->Info->VerticalResolution, 
         GetPixelFormatUnicode(gop->Mode->Info->PixelFormat), 
         gop->Mode->Info->PixelsPerScanLine);
-    Print(L"Frame Buffer: 0x%01x - 0x%01x, Size: %lu bytes\n", 
+    Print(L"Frame Buffer: 0x%0lx - 0x%0lx, Size: %lu bytes\n", 
         gop->Mode->FrameBufferBase, 
         gop->Mode->FrameBufferBase + gop->Mode->FrameBufferSize, 
         gop->Mode->FrameBufferSize);
 
     UINT8* frame_buffer = (UINT8*)gop->Mode->FrameBufferBase;
-    for (UINTN i  = 0; i < gop->Mode->FrameBufferSize; ++i) {
+    for (UINTN i = 0; i < gop->Mode->FrameBufferSize; ++i) {
         frame_buffer[i] = 255;
     }
-    // #@@range_end(gop)
 
     EFI_FILE_PROTOCOL* kernel_file;
     root_dir->Open(
@@ -228,12 +226,12 @@ EFI_STATUS EFIAPI UefiMain (
     }
     // #@@range_end(exit_bs)
 
-    // #@@range_begin(call_kernel)
     UINT64 entry_addr = *(UINT64*)(kernel_base_addr + 24);
 
-    typedef void EntryPointType(void);
+    // #@@range_begin(call_kernel)
+    typedef void EntryPointType(UINT64, UINT64);
     EntryPointType* entry_point = (EntryPointType*)entry_addr;
-    entry_point();
+    entry_point(gop->Mode->FrameBufferBase, gop->Mode->FrameBufferSize);
     // #@@range_end(call_kernel)
     
     Print(L"All done\n");
