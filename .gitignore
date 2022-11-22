@@ -1,2 +1,2 @@
-kernel/kernel.elf*
-kernel/main.o
+*.o
+*.elf
