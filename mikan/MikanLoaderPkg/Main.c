@@ -299,7 +299,7 @@ EFI_STATUS EFIAPI UefiMain (
     // #@@range_begin(pass_frame_buffer_config)
     struct FrameBufferConfig config = {
         (UINT8*)gop->Mode->FrameBufferBase, 
-        gop->Mode->Info->PixelPerScanLine, 
+        gop->Mode->Info->PixelsPerScanLine, 
         gop->Mode->Info->HorizontalResolution, 
         gop->Mode->Info->VerticalResolution, 
         0
