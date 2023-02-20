@@ -16,13 +16,13 @@ struct PixelColor {
 // #@@range_begin(pixel_writer)
 class PixelWriter {
     public:
-        PixelWriter(const FrameBufferConfig& config) : coufig_{config} {
+        PixelWriter(const FrameBufferConfig& config) : config_{config} {
         }
         virtual ~PixelWriter() = default;
         virtual void Write(int x, int y, const PixelColor& c) = 0;
 
     protected:
-        unit8_t* PixelAt(int x, int y) {
+        uint8_t* PixelAt(int x, int y) {
             return config_.frame_buffer + 4 * (config_.pixels_per_scan_line * y + x);
         }
 
