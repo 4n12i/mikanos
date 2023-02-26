@@ -201,7 +201,7 @@ void CopyLoadSegments(Elf64_Ehdr* ehdr) {
     }
 }
 
-EFI_STATUS EFIAPI UefiMain (
+EFI_STATUS EFIAPI UefiMain(
         EFI_HANDLE image_handle, 
         EFI_SYSTEM_TABLE* system_table) {
     EFI_STATUS status;
@@ -228,7 +228,7 @@ EFI_STATUS EFIAPI UefiMain (
         root_dir, &memmap_file, L"\\memmap", 
         EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE | EFI_FILE_MODE_CREATE, 0);
     if (EFI_ERROR(status)) {
-        Print(L"failed to open file '\\memmap' : %r\n", status);
+        Print(L"failed to open file '\\memmap': %r\n", status);
         Print(L"Ignored.\n");
     } else {
         status = SaveMemoryMap(&memmap, memmap_file);
@@ -312,11 +312,11 @@ EFI_STATUS EFIAPI UefiMain (
     }
 
     CopyLoadSegments(kernel_ehdr);
-    Print(L"Kernel: 0x%01x - 0x%01x\n", kernel_first_addr, kernel_last_addr);
+    Print(L"Kernel: 0x%0lx - 0x%0lx\n", kernel_first_addr, kernel_last_addr);
 
     status = gBS->FreePool(kernel_buffer);
     if (EFI_ERROR(status)) {
-        Print(L"failed to free poot: %r\n", status);
+        Print(L"failed to free pool: %r\n", status);
         Halt();
     }
 
